@@ -4,6 +4,7 @@ from urllib.request import urlopen
 from datetime import datetime
 
 from event import Event
+from util import determine_year
 
 # Parser superclass and factory
 class Parser:
@@ -61,6 +62,7 @@ class FlourCityStationParser(Parser):
             month = li.find('span', 'second').string
             time = li.find('span', 'cro_foodprice').string
             dt = datetime.strptime('{} {} {}'.format(month, day, time), '%b %d %I:%M %p')
+            dt = dt.replace(year=determine_year(dt))
 
             events.append(Event(self.venue, title, [], dt, details_page)) 
         return events
