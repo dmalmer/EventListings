@@ -5,7 +5,7 @@ from datetime import datetime
 
 from event import Event
 
-# Parser superclass
+# Parser superclass and factory
 class Parser:
     def __init__(self, url):
         self.url = url
@@ -42,6 +42,8 @@ class Parser:
             return BugJarParser(url)
         elif 'dinosaurbarbque.com' in url:
             return DinosaurBBQParser(url)
+        elif 'rochester.edu/Eastman' in url:
+            return EastmanParser(url)
         else:
             raise Exception('Missing parser for: {}'.format(url))
 
@@ -52,17 +54,12 @@ class FlourCityStationParser(Parser):
         events = []
         for li in soup.find_all('li', 'twistercontent'):
             title = li.find('h5', 'cro_cust_font').string
+            details_page = li.find('div', 'clarlabel').a['href']
 
             day = li.find('span', 'first').string
             month = li.find('span', 'second').string
             time = li.find('span', 'cro_foodprice').string
             dt = datetime.strptime('{} {} {}'.format(month, day, time), '%b %d %I:%M %p')
-
-            details_page = li.find('div', 'clarlabel').a['href']
-            
-            print('\n', title, ' : ', month, day, time)
-            print(dt.isoformat())
-            print(details_page)
 
             events.append(Event(title, [], dt, details_page)) 
         return events
@@ -79,12 +76,7 @@ class BugJarParser(Parser):
 
             datestr = tr.find('td', 'date').string
             time = tr.find('td', 'time').string 
-
             dt = datetime.strptime('{} {}'.format(datestr, time), '%m/%d/%y %I:%M%p')
-            
-            print('\n', title, ' : ', datestr, time)
-            print(dt.isoformat())
-            print(details_page)
 
             events.append(Event(title, [], dt, details_page)) 
         return events
@@ -92,4 +84,33 @@ class BugJarParser(Parser):
 
 class DinosaurBBQParser(Parser):
     def parse_events(self, soup):
-        print(soup.prettify())
+        events = []
+        for div in soup.find_all('div', 'seven columns'):
+            title = div.find('h1').string
+
+            datestr = div.find_all('span')[1].string
+            dt = datetime.strptime(datestr, '%B %d, %Y | %I%p')
+
+            events.append(Event(title, [], dt, 'http://www.dinosaurbarbque.com/live-music-rochester')) 
+        return events
+
+
+class EastmanParser(Parser):
+    def parse_events(self, soup):
+        events = []
+        for chunk in soup.find_all('div', 'Event'):
+            a = chunk.find('a')
+            title = a.string
+
+            datestr = a['href'].split('from=')[1].split('&')[0]
+            timestr = chunk.find('div', 'EventTime').string
+            try:
+                dt = datetime.strptime('{} {}'.format(datestr, timestr), '%d%B%Y %I:%M %p')
+            except ValueError:
+                #for empty time fields
+                dt = datetime.strptime(datestr, '%d%B%Y')
+            
+            events.append(Event(title, [], dt, 'http://www.rochester.edu/Eastman/calendar/?to=1Jul2050')) 
+        return events
+
+
