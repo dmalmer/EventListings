@@ -7,7 +7,8 @@ from event import Event
 
 # Parser superclass and factory
 class Parser:
-    def __init__(self, url):
+    def __init__(self, venue, url):
+        self.venue = venue
         self.url = url
 
 
@@ -37,13 +38,13 @@ class Parser:
     @staticmethod
     def factory(url):
         if 'flourcitystation.com' in url:
-            return FlourCityStationParser(url)
+            return FlourCityStationParser('Flour City Station', url)
         elif 'bugjar.com' in url:
-            return BugJarParser(url)
+            return BugJarParser('Bug Jar', url)
         elif 'dinosaurbarbque.com' in url:
-            return DinosaurBBQParser(url)
+            return DinosaurBBQParser('Dinosaur BBQ', url)
         elif 'rochester.edu/Eastman' in url:
-            return EastmanParser(url)
+            return EastmanParser('Eastman School of Music', url)
         else:
             raise Exception('Missing parser for: {}'.format(url))
 
@@ -61,7 +62,7 @@ class FlourCityStationParser(Parser):
             time = li.find('span', 'cro_foodprice').string
             dt = datetime.strptime('{} {} {}'.format(month, day, time), '%b %d %I:%M %p')
 
-            events.append(Event(title, [], dt, details_page)) 
+            events.append(Event(self.venue, title, [], dt, details_page)) 
         return events
 
 
@@ -78,7 +79,7 @@ class BugJarParser(Parser):
             time = tr.find('td', 'time').string 
             dt = datetime.strptime('{} {}'.format(datestr, time), '%m/%d/%y %I:%M%p')
 
-            events.append(Event(title, [], dt, details_page)) 
+            events.append(Event(self.venue, title, [], dt, details_page)) 
         return events
 
 
@@ -91,7 +92,7 @@ class DinosaurBBQParser(Parser):
             datestr = div.find_all('span')[1].string
             dt = datetime.strptime(datestr, '%B %d, %Y | %I%p')
 
-            events.append(Event(title, [], dt, 'http://www.dinosaurbarbque.com/live-music-rochester')) 
+            events.append(Event(self.venue, title, [], dt, self.url)) 
         return events
 
 
@@ -110,7 +111,7 @@ class EastmanParser(Parser):
                 #for empty time fields
                 dt = datetime.strptime(datestr, '%d%B%Y')
             
-            events.append(Event(title, [], dt, 'http://www.rochester.edu/Eastman/calendar/?to=1Jul2050')) 
+            events.append(Event(self.venue, title, [], dt, self.url)) 
         return events
 
 
