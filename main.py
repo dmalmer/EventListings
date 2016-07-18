@@ -1,11 +1,11 @@
 
 from parser import Parser
+from util import output_html
 
 if __name__ == '__main__':
     with open('./venue_urls') as f:
-        venue_urls = [line.strip() for line in f]
+        venue_urls = [line.strip() for line in f if line[0] != '#']
     
-    #TODO: create database for event entries
     all_events = []
     for url in venue_urls:
         print('Parsing', url)
@@ -14,6 +14,5 @@ if __name__ == '__main__':
         soup = venue_parser.retrieve_soup()
         all_events.extend(venue_parser.parse_events(soup))
 
-    for event in sorted(all_events):
-        print(event)
+    output_html(all_events, './shows.html')
 

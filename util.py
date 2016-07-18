@@ -13,3 +13,23 @@ def determine_year(new_datetime):
     else:
         return curr_datetime.year + 1
 
+
+def output_html(all_events, filename):
+    with open(filename, 'w') as f:
+        f.write('<center>\n'
+                '<table style="width:90%; border-collapse:collapse" border="1">\n'
+                '<col width="90">'
+                '<col width="15%">'
+                '<tr>\n'
+                '   <th align="center">Date</th>\n'
+                '   <th align="center">Venue</th>\n'
+                '   <th align="center">Show</th>\n'
+                '</tr>\n')
+        for event in sorted(all_events):
+            f.write('<tr>\n'
+                    '   <td align="center">{}</th>\n'
+                    '   <td align="center">{}</th>\n'
+                    '   <td style="padding-left:5px;padding-right:5px;"><a href="{}">{}</a></th>\n'
+                    '</tr>\n'.format(event.datetime.strftime('%a, %-m/%d %-I:%M%p'), event.venue, event.details_page, event.title))
+        f.write('</table>\n'
+                '</center>\n')
