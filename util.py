@@ -27,9 +27,9 @@ def output_html(all_events, filename):
                 '</tr>\n')
         for event in sorted(all_events):
             f.write('<tr>\n'
-                    '   <td align="center">{}</th>\n'
-                    '   <td align="center">{}</th>\n'
-                    '   <td style="padding-left:5px;padding-right:5px;"><a href="{}">{}</a></th>\n'
+                    '   <td align="center">{0}</th>\n'
+                    '   <td align="center"><a href="https://www.google.com/maps/search/{1}, Rochester, NY">{1}</a></th>\n'
+                    '   <td style="padding-left:5px;padding-right:5px;"><a href="{2}">{3}</a></th>\n'
                     '</tr>\n'.format(event.datetime.strftime('%a, %-m/%d %-I:%M%p'), event.venue, event.details_page, event.title))
         f.write('</table>\n'
                 '</center>\n')
