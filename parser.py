@@ -46,6 +46,8 @@ class Parser:
             return DinosaurBBQParser('Dinosaur BBQ', url)
         elif 'rochester.edu/Eastman' in url:
             return EastmanParser('Eastman School of Music', url)
+        elif 'bouldercoffee.info' in url:
+            return BoulderParser('Boulder Coffee Co.', url)
         else:
             raise Exception('Missing parser for: {}'.format(url))
 
@@ -116,4 +118,15 @@ class EastmanParser(Parser):
             events.append(Event(self.venue, title, [], dt, self.url)) 
         return events
 
+
+class BoulderParser(Parser):
+    def parse_events(self, soup):
+        events = []
+        for table in soup.find_all('table', 'normalfont'):
+            title, datestr = text_split = table.find('div', 'searchtitlefont').li.string.rsplit(' (', 1)
+            timestr = table.find('div', 'searchtextfont').contents[3].split('\n')[0]
+            dt = datetime.strptime('{} {}'.format(datestr, timestr), '%A, %d %B %Y) %I:%M%p')
+
+            events.append(Event(self.venue, title, [], dt, self.url)) 
+        return events
 
